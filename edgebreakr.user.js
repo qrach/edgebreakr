@@ -12,8 +12,7 @@
 // @grant        GM_setValue
 // ==/UserScript==
 
-var EB;
-EB = { //dont mess with this shi
+var EB = { //dont mess with this shi
     UI: {
         C: function(type, parent, styles) {
             if (typeof type !== 'string') {
@@ -76,9 +75,14 @@ window.addEventListener('load', function() { with (EB) {
     var Menu = UI.C('div',document.body);
     Menu.style.cssText = 'width: 400px; height: 600px; background-color: black; position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 9999;';
     Menu.style.display = Store.getVal('MenuVisible') ? 'block' : 'none' || 'none';
+    
+    var Title = UI.C('h1',Menu)
+    Title.style.cssText = 'color: lightgrey;'
+    Title.textContent = 'Edgebreakr'
+
     if (/^https?:\/\/[^\/]*\.core\.learn\.edgenuity\.com\/Player/i.test(window.location.href)) {
         var edgeMenu = document.querySelector('ul[data-bind="visible: user().userMenu, if: $root.logoutURL"]');
-        var MenuTog = UI.C('li');
+        var MenuTog = UI.C('li',edgeMenu);
         MenuTog.style.cursor = 'pointer';
         MenuTog.style.opacity = 0;
 
@@ -99,15 +103,46 @@ window.addEventListener('load', function() { with (EB) {
             var targetOpacity = (Display === 'none' ? 1 : 0);
             if (Display === 'none') {
                 Menu.style.display = 'block';
-                UI.Fade(Menu,targetOpacity,100);
+                UI.Fade(Menu,targetOpacity,250);
             } else {
-                await UI.Fade(Menu,targetOpacity,100);
+                await UI.Fade(Menu,targetOpacity,250);
                 Menu.style.display = 'none';
             }
         });
+    } else if (/^(https?:\/\/)student\.edgenuity\.com\//.test(window.location.href)) {
+        function Load() {
+            var edgeMenu = document.querySelector('.dropdown-menu.dropdown-menu-right.show');
+            if (edgeMenu) {
+                document.removeEventListener("DOMSubtreeModified", Load);
+                var MenuA = UI.C('a',edgeMenu);
+                MenuA.style.opacity = 0;
+                MenuA.style['line-height'] = .5;
+                MenuA.setAttribute('class', 'dropdown-item');
+                MenuA.textContent = "Edgebreakr";
 
-        edgeMenu.appendChild(MenuTog);
-    } else {
-        document.querySelector('.dropdown-menu[aria-labelledby="profile-nav-dropdown"]');
+                MenuA.addEventListener('mouseover', function() {
+                    UI.Fade(MenuA,1,100);
+                    MenuA.style['line-height'] = 1.5;
+                });
+                MenuA.addEventListener('mouseout', function() {
+                    UI.Fade(MenuA,0,100);
+                    MenuA.style['line-height'] = .5;
+                });
+                MenuA.addEventListener('click', async function(event) {
+                    event.preventDefault();
+                    var Display = Menu.style.display;
+                    Store.setVal('MenuVisible', Display === 'none' ? true : false);
+                    var targetOpacity = (Display === 'none' ? 1 : 0);
+                    if (Display === 'none') {
+                        Menu.style.display = 'block';
+                        UI.Fade(Menu,targetOpacity,250);
+                    } else {
+                        await UI.Fade(Menu,targetOpacity,250);
+                        Menu.style.display = 'none';
+                    }
+                });
+            }
+        };
+        document.addEventListener('DOMSubtreeModified', Load)
     };
 }});
