@@ -70,7 +70,8 @@ EB = { //dont mess with this shi
 };
 
 window.addEventListener('load', function() { with (EB) {
-    var Menu = document.createElement('div');
+    var Menu = UI.C('div',document.body);
+    Menu.style.cssText = 'width: 400px; height: 600px; background-color: black; position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 9999;';
     Menu.style.display = Store.getVal('MenuVisible') ? 'block' : 'none' || 'none';
     if (/^https?:\/\/[^\/]*\.core\.learn\.edgenuity\.com\/Player/i.test(window.location.href)) {
         var edgeMenu = document.querySelector('ul[data-bind="visible: user().userMenu, if: $root.logoutURL"]');
@@ -90,8 +91,16 @@ window.addEventListener('load', function() { with (EB) {
         });
         MenuA.addEventListener('click', function(event) {
             event.preventDefault();
-            Store.setVal('MenuVisible', Menu.style.display === 'none' ? true : false);
-            Menu.style.display = (Menu.style.display === 'none') ? 'block' : 'none';
+            var Display = Menu.style.display
+            var targetOpacity = Display === 'none' ? 1 : 0
+            if (Display === 'none') {
+                Menu.style.Display = 'block';
+                UI.Fade(Menu,targetOpacity,100);
+            } else {
+                UI.Fade(Menu,targetOpacity,100);
+                Menu.style.Display = 'none';
+            }
+            Store.setVal('MenuVisible', Display === 'none' ? true : false);
         });
 
         edgeMenu.appendChild(MenuTog);
