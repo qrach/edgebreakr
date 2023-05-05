@@ -13,24 +13,23 @@
 
 var EB = { //dont mess with this shi
     UI: {
-        Fade: function(element, targetOpacity, duration) {
+        Fade: function Fade(element, targetOpacity, duration) {
             return new Promise(function(resolve, reject) {
                 var currentOpacity = parseFloat(element.style.opacity);
-                var increment = (targetOpacity - currentOpacity) / duration;
+                var framesPerSecond = 100; // Change this value if needed
+                var increment = (targetOpacity - currentOpacity) / (duration * framesPerSecond);
                 var updateOpacity = function() {
-                if (currentOpacity < targetOpacity) {
                     currentOpacity += increment;
-                }
-                if (currentOpacity < targetOpacity) {
-                    currentOpacity -= increment;
-                }
-                element.style.opacity = currentOpacity;
-                    if (currentOpacity >= targetOpacity) {
+                    if ((increment > 0 && currentOpacity >= targetOpacity) || (increment < 0 && currentOpacity <= targetOpacity)) {
                         clearInterval(intervalId);
+                        element.style.opacity = targetOpacity;
+                        resolve();
+                    } else {
+                        element.style.opacity = currentOpacity;
                     }
                 };
-                var intervalId = setInterval(updateOpacity, 1);
-            })
+                var intervalId = setInterval(updateOpacity, 1000/framesPerSecond);
+            });
         }
     },
     Funcs: {},
