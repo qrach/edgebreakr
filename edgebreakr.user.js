@@ -1,6 +1,6 @@
 // ==UserScript==
 // @author       qrach
-// @name         EdgebreakR
+// @name         Edgebreakr
 // @version      0.1.0
 // @description  Aims to automate most edgenuity tasks
 // @namespace    https://github.com/qrach/edgebreakr/
@@ -10,14 +10,61 @@
 // @match        https://student.edgenuity.com/*
 // @grant        GM_setValue GM_getValue
 // ==/UserScript==
-window.addEventListener('load', function() {
-    if (/^https?:\/\/[^\/]*\.core\.learn\.edgenuity\.com\/Player/i.test(window.location.href)) {
-        var UI = document.createElement('div');
-        UI.style.display = 'none';
-        var toolBar = document.querySelector('ul.toolbar[data-bind="with: $root.toolbar"][no-translate="true"]');
 
-        var userMenu = document.querySelector('ul[data-bind="visible: user().userMenu, if: $root.logoutURL"]');
-        var toggleMenu = document.createElement('li');
-        toggleMenu.style.cursor = 'pointer';
+var EB = { //dont mess with this shi
+    UI: {
+        Fade: function(element, targetOpacity, duration) {
+            return new Promise(function(resolve, reject) {
+                var currentOpacity = parseFloat(element.style.opacity);
+                var increment = (targetOpacity - currentOpacity) / duration;
+                var updateOpacity = function() {
+                if (currentOpacity < targetOpacity) {
+                    currentOpacity += increment;
+                }
+                if (currentOpacity < targetOpacity) {
+                    currentOpacity -= increment;
+                }
+                element.style.opacity = currentOpacity;
+                    if (currentOpacity >= targetOpacity) {
+                        clearInterval(intervalId);
+                    }
+                };
+                var intervalId = setInterval(updateOpacity, 1);
+            })
+        }
+    },
+    Funcs: {},
+    Store: {
+        getItem: GM_getValue,
+        setItem: GM_setValue
     }
-});
+};
+
+window.addEventListener('load', function() { with (EB) {
+    var Menu = createElement('div');
+    Menu.style.display = 'none';
+    if (/^https?:\/\/[^\/]*\.core\.learn\.edgenuity\.com\/Player/i.test(window.location.href)) {
+        console.log("ok")
+        var edgeMenu = document.querySelector('ul[data-bind="visible: user().userMenu, if: $root.logoutURL"]');
+        var MenuTog = document.createElement('li');
+        MenuTog.style.cursor = 'pointer';
+        MenuTog.style.opacity = 0;
+
+        var MenuA = createElement('a');
+        MenuA.textContent = "Edgebreakr";
+        MenuA.style.opacity = 0;
+        
+        MenuTog.appendChild(MenuA);
+
+        MenuTog.addEventListener('mouseover', function() {
+            UI.Fade(MenuTog,1,1)
+            UI.Fade(MenuA,1,1)
+        });
+        MenuTog.addEventListener('mouseout', function() {
+            UI.Fade(MenuTog,0,1)
+            UI.Fade(MenuA,0,1)
+        });
+
+        edgeMenu.appendChild(MenuTog);
+    };
+}});
