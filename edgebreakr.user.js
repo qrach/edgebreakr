@@ -56,12 +56,12 @@ window.addEventListener('load', function() { with (EB) {
         MenuTog.appendChild(MenuA);
 
         MenuTog.addEventListener('mouseover', function() {
-            UI.Fade(MenuTog,1,100)
-            UI.Fade(MenuA,1,100)
+            UI.Fade(MenuTog,1,.5)
+            UI.Fade(MenuA,1,.5)
         });
         MenuTog.addEventListener('mouseout', function() {
-            UI.Fade(MenuTog,0,100)
-            UI.Fade(MenuA,0,100)
+            UI.Fade(MenuTog,0,.5)
+            UI.Fade(MenuA,0,.5)
         });
 
         edgeMenu.appendChild(MenuTog);
