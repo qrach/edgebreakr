@@ -10,27 +10,33 @@
 // @match        https://student.edgenuity.com/*
 // @grant        GM_setValue GM_getValue
 // ==/UserScript==
-
-var EB = { //dont mess with this shi
+var EB;
+EB = { //dont mess with this shi
     UI: {
-        Fade: function Fade(element, targetOpacity, duration) {
-            return new Promise(function(resolve, reject) {
-                var currentOpacity = parseFloat(element.style.opacity);
-                var framesPerSecond = 100; // Change this value if needed
-                var increment = (targetOpacity - currentOpacity) / (duration * framesPerSecond);
-                var updateOpacity = function() {
-                    currentOpacity += increment;
-                    if ((increment > 0 && currentOpacity >= targetOpacity) || (increment < 0 && currentOpacity <= targetOpacity)) {
-                        clearInterval(intervalId);
-                        element.style.opacity = targetOpacity;
-                        resolve();
-                    } else {
-                        element.style.opacity = currentOpacity;
-                    }
-                };
-                var intervalId = setInterval(updateOpacity, 1000/framesPerSecond);
-            });
-        }
+        Fade: function(element, targetOpacity, duration) {
+            var startOpacity = parseFloat(element.style.opacity) || 0;
+            var endOpacity = targetOpacity;
+            var deltaOpacity = endOpacity - startOpacity;
+            var startTime = Date.now();
+            function step() {
+                var elapsed = Date.now() - startTime;
+                var opacity = startOpacity + (deltaOpacity * (elapsed / duration));
+                element.style.opacity = opacity;
+                if ((deltaOpacity > 0 && opacity >= endOpacity) || (deltaOpacity < 0 && opacity <= endOpacity)) {
+                    element.style.opacity = endOpacity;
+                    delete EB.UI.Animating[element.id];
+                    return;
+                }
+                element.fadeAnimationId = window.requestAnimationFrame(step);
+            }
+            if (EB.UI.Animating[element.id]) {
+                window.cancelAnimationFrame(element.fadeAnimationId);
+                delete EB.UI.Animating[element.id];
+            }
+            EB.UI.Animating[element.id] = true;
+            element.fadeAnimationId = window.requestAnimationFrame(step);
+        },
+        Animating: {}
     },
     Funcs: {},
     Store: {
@@ -52,16 +58,14 @@ window.addEventListener('load', function() { with (EB) {
         var MenuA = document.createElement('a');
         MenuA.textContent = "Edgebreakr";
         MenuA.style.opacity = 1;
-        
+
         MenuTog.appendChild(MenuA);
 
         MenuTog.addEventListener('mouseover', function() {
-            UI.Fade(MenuTog,1,.5)
-            UI.Fade(MenuA,1,.5)
+            UI.Fade(MenuTog,1,100)
         });
         MenuTog.addEventListener('mouseout', function() {
-            UI.Fade(MenuTog,0,.5)
-            UI.Fade(MenuA,0,.5)
+            UI.Fade(MenuTog,0,100)
         });
 
         edgeMenu.appendChild(MenuTog);
