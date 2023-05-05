@@ -87,10 +87,10 @@ window.addEventListener('load', function() { with (EB) {
         MenuA.style.opacity = 1;
 
         MenuTog.addEventListener('mouseover', function() {
-            UI.Fade(MenuTog,1,250);
+            UI.Fade(MenuTog,1,100);
         });
         MenuTog.addEventListener('mouseout', function() {
-            UI.Fade(MenuTog,0,250);
+            UI.Fade(MenuTog,0,100);
         });
         MenuA.addEventListener('click', async function(event) {
             event.preventDefault();
