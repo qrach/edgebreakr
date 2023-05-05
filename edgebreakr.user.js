@@ -99,13 +99,15 @@ window.addEventListener('load', function() { with (EB) {
             var targetOpacity = (Display === 'none' ? 1 : 0);
             if (Display === 'none') {
                 Menu.style.display = 'block';
-                UI.Fade(Menu,targetOpacity,250);
+                UI.Fade(Menu,targetOpacity,100);
             } else {
-                await UI.Fade(Menu,targetOpacity,250);
+                await UI.Fade(Menu,targetOpacity,100);
                 Menu.style.display = 'none';
             }
         });
 
         edgeMenu.appendChild(MenuTog);
+    } else {
+        document.querySelector('.dropdown-menu[aria-labelledby="profile-nav-dropdown"]');
     };
 }});
