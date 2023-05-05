@@ -41,7 +41,7 @@ var EB = { //dont mess with this shi
 };
 
 window.addEventListener('load', function() { with (EB) {
-    var Menu = createElement('div');
+    var Menu = document.createElement('div');
     Menu.style.display = 'none';
     if (/^https?:\/\/[^\/]*\.core\.learn\.edgenuity\.com\/Player/i.test(window.location.href)) {
         console.log("ok")
@@ -50,9 +50,9 @@ window.addEventListener('load', function() { with (EB) {
         MenuTog.style.cursor = 'pointer';
         MenuTog.style.opacity = 0;
 
-        var MenuA = createElement('a');
+        var MenuA = document.createElement('a');
         MenuA.textContent = "Edgebreakr";
-        MenuA.style.opacity = 0;
+        MenuA.style.opacity = 1;
         
         MenuTog.appendChild(MenuA);
 
