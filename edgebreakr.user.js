@@ -35,8 +35,8 @@ var EB = { //dont mess with this shi
     },
     Funcs: {},
     Store: {
-        getItem: GM_getValue,
-        setItem: GM_setValue
+        getItem: localStorage.getItem,
+        setItem: localStorage.setItem
     }
 };
 
