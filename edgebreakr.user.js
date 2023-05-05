@@ -8,5 +8,16 @@
 // @updateURL   https://raw.githubusercontent.com/qrach/edgebreakr/main/edgebreakr.user.js
 // @match        *://*.core.learn.edgenuity.com/*
 // @match        https://student.edgenuity.com/*
-// @grant        none
+// @grant        GM_setValue GM_getValue
 // ==/UserScript==
+window.addEventListener('load', function() {
+    if (/^https?:\/\/[^\/]*\.core\.learn\.edgenuity\.com\/Player/i.test(window.location.href)) {
+        var UI = document.createElement('div');
+        UI.style.display = 'none';
+        var toolBar = document.querySelector('ul.toolbar[data-bind="with: $root.toolbar"][no-translate="true"]');
+
+        var userMenu = document.querySelector('ul[data-bind="visible: user().userMenu, if: $root.logoutURL"]');
+        var toggleMenu = document.createElement('li');
+        toggleMenu.style.cursor = 'pointer';
+    }
+});
