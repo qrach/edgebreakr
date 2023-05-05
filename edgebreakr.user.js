@@ -110,10 +110,10 @@ window.addEventListener('load', function() { with (EB) {
             }
         });
     } else if (/^(https?:\/\/)student\.edgenuity\.com\//.test(window.location.href)) {
-        function Load() {
+        //function Load() {
             var edgeMenu = document.querySelector('.dropdown-menu.dropdown-menu-right.show');
             if (edgeMenu) {
-                document.removeEventListener("DOMSubtreeModified", Load);
+                //document.removeEventListener("DOMSubtreeModified", Load);
                 var MenuA = UI.C('a',edgeMenu);
                 MenuA.style.opacity = 0;
                 MenuA.style['line-height'] = .5;
@@ -142,7 +142,7 @@ window.addEventListener('load', function() { with (EB) {
                     }
                 });
             }
-        };
-        document.addEventListener('DOMSubtreeModified', Load)
+        //};
+        //document.addEventListener('DOMSubtreeModified', Load)
     };
 }});
