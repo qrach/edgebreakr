@@ -87,10 +87,10 @@ window.addEventListener('load', function() { with (EB) {
         MenuA.style.opacity = 1;
 
         MenuTog.addEventListener('mouseover', function() {
-            UI.Fade(MenuTog,1,100);
+            UI.Fade(MenuTog,1,250);
         });
         MenuTog.addEventListener('mouseout', function() {
-            UI.Fade(MenuTog,0,100);
+            UI.Fade(MenuTog,0,250);
         });
         MenuA.addEventListener('click', async function(event) {
             event.preventDefault();
@@ -99,9 +99,9 @@ window.addEventListener('load', function() { with (EB) {
             var targetOpacity = (Display === 'none' ? 1 : 0);
             if (Display === 'none') {
                 Menu.style.display = 'block';
-                UI.Fade(Menu,targetOpacity,100);
+                UI.Fade(Menu,targetOpacity,250);
             } else {
-                await UI.Fade(Menu,targetOpacity,100);
+                await UI.Fade(Menu,targetOpacity,250);
                 Menu.style.display = 'none';
             }
         });
