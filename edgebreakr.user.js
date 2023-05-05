@@ -1,11 +1,11 @@
 // ==UserScript==
 // @author       qrach
-// @name         Edgebreakr
-// @version      0.1.0
+// @name         EdgeBreakr
+// @version      0.0.1
 // @description  Aims to automate most edgenuity tasks
-// @namespace    https://github.com/qrach/edgebreakr/
-// @downloadURL  https://raw.githubusercontent.com/qrach/edgebreakr/main/edgebreakr.user.js
-// @updateURL   https://raw.githubusercontent.com/qrach/edgebreakr/main/edgebreakr.user.js
+// @namespace    https://github.com/qrach/EdgeBreakr/
+// @downloadURL  https://raw.githubusercontent.com/qrach/EdgeBreakr/main/EdgeBreakr.user.js
+// @updateURL   https://raw.githubusercontent.com/qrach/EdgeBreakr/main/EdgeBreakr.user.js
 // @match        *://*.core.learn.edgenuity.com/*
 // @match        https://student.edgenuity.com/*
 // @grant        GM_getValue
@@ -16,52 +16,55 @@ var EB = { //dont mess with this shi
     UI: {
         C: function(type, parent, styles) {
             if (typeof type !== 'string') {
-              throw new TypeError('Type argument must be a string');
+                throw new TypeError('Type argument must be a string');
             }
             if (parent && !(parent instanceof HTMLElement)) {
-              throw new TypeError('Parent argument must be an HTML element');
+                throw new TypeError('Parent argument must be an HTML element');
             }
             var e = document.createElement(type);
             if (parent) {
-              parent.appendChild(e);
+                parent.appendChild(e);
             }
             return e;
           },
         Fade: function (element, targetOpacity, duration) {
             return new Promise((resolve, reject) => {
-              if (!(element instanceof HTMLElement)) {
-                reject(new TypeError('Element argument must be an HTML element'));
-              }
-              if (typeof targetOpacity !== 'number' || targetOpacity < 0 || targetOpacity > 1) {
-                reject(new TypeError('Target opacity argument must be a number between 0 and 1 (inclusive)'));
-              }
-              if (typeof duration !== 'number' || duration < 0) {
-                reject(new TypeError('Duration argument must be a number greater than or equal to zero'));
-              }
-              var startOpacity = parseFloat(element.style.opacity) || 0;
-              var endOpacity = targetOpacity;
-              var deltaOpacity = endOpacity - startOpacity;
-              var startTime = Date.now();
-              function step() {
-                var elapsed = Date.now() - startTime;
-                var opacity = startOpacity + (deltaOpacity * (elapsed / duration));
-                element.style.opacity = opacity;
-                if ((deltaOpacity > 0 && opacity >= endOpacity) || (deltaOpacity < 0 && opacity <= endOpacity)) {
-                  element.style.opacity = endOpacity;
-                  delete EB.UI.Animating[element.id];
-                  resolve();
-                  return;
+                if (!(element instanceof HTMLElement)) {
+                    reject(new TypeError('Element argument must be an HTML element'));
                 }
-                element.fadeAnimationId = window.requestAnimationFrame(step);
-              }
-              if (EB.UI.Animating[element.id]) {
+                if (typeof targetOpacity !== 'number' || targetOpacity < 0 || targetOpacity > 1) {
+                    reject(new TypeError('Target opacity argument must be a number between 0 and 1 (inclusive)'));
+                }
+                if (typeof duration !== 'number' || duration < 0) {
+                    reject(new TypeError('Duration argument must be a number greater than or equal to zero'));
+                }
+                var startOpacity = parseFloat(element.style.opacity) || 0;
+                if (startOpacity === targetOpacity) {
+                    resolve();
+                };
+                var endOpacity = targetOpacity;
+                var deltaOpacity = endOpacity - startOpacity;
+                var startTime = Date.now();
+                function step() {
+                    var elapsed = Date.now() - startTime;
+                    var opacity = startOpacity + (deltaOpacity * (elapsed / duration));
+                    element.style.opacity = opacity;
+                    if ((deltaOpacity > 0 && opacity >= endOpacity) || (deltaOpacity < 0 && opacity <= endOpacity)) {
+                        element.style.opacity = endOpacity;
+                        delete EB.UI.Animating[element.id];
+                        resolve();
+                        return;
+                    }
+                    element.fadeAnimationId = window.requestAnimationFrame(step);
+                }
+            if (EB.UI.Animating[element.id]) {
                 window.cancelAnimationFrame(element.fadeAnimationId);
                 delete EB.UI.Animating[element.id];
-              }
-              EB.UI.Animating[element.id] = true;
-              element.fadeAnimationId = window.requestAnimationFrame(step);
+            }
+            EB.UI.Animating[element.id] = true;
+            element.fadeAnimationId = window.requestAnimationFrame(step);
             });
-          },
+        },
         Animating: {}
     },
     Funcs: {},
@@ -75,10 +78,10 @@ window.addEventListener('load', function() { with (EB) {
     var Menu = UI.C('div',document.body);
     Menu.style.cssText = 'width: 400px; height: 600px; background-color: black; position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 9999;';
     Menu.style.display = Store.getVal('MenuVisible') ? 'block' : 'none' || 'none';
-    
+
     var Title = UI.C('h1',Menu)
-    Title.style.cssText = 'color: lightgrey;'
-    Title.textContent = 'Edgebreakr'
+    Title.style.cssText = 'color: lightgrey; font-weight: bold; padding-top: 10px;'
+    Title.textContent = 'EdgeBreakr'
 
     if (/^https?:\/\/[^\/]*\.core\.learn\.edgenuity\.com\/Player/i.test(window.location.href)) {
         var edgeMenu = document.querySelector('ul[data-bind="visible: user().userMenu, if: $root.logoutURL"]');
@@ -87,7 +90,7 @@ window.addEventListener('load', function() { with (EB) {
         MenuTog.style.opacity = 0;
 
         var MenuA = UI.C('a',MenuTog);
-        MenuA.textContent = "Edgebreakr";
+        MenuA.textContent = "EdgeBreakr";
         MenuA.style.opacity = 1;
 
         MenuTog.addEventListener('mouseover', function() {
@@ -118,7 +121,7 @@ window.addEventListener('load', function() { with (EB) {
                 MenuA.style.opacity = 0;
                 MenuA.style['line-height'] = .5;
                 MenuA.setAttribute('class', 'dropdown-item');
-                MenuA.textContent = "Edgebreakr";
+                MenuA.textContent = "EdgeBreakr";
 
                 MenuA.addEventListener('mouseover', function() {
                     UI.Fade(MenuA,1,100);
@@ -146,4 +149,3 @@ window.addEventListener('load', function() { with (EB) {
         document.addEventListener('DOMSubtreeModified', Load)
     };
 }});
-//yuh
