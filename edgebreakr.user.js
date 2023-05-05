@@ -28,37 +28,40 @@ EB = { //dont mess with this shi
             }
             return e;
           },
-        Fade: function(element, targetOpacity, duration) {
-            if (!(element instanceof HTMLElement)) {
-              throw new TypeError('Element argument must be an HTML element');
-            }
-            if (typeof targetOpacity !== 'number' || targetOpacity < 0 || targetOpacity > 1) {
-              throw new TypeError('Target opacity argument must be a number between 0 and 1 (inclusive)');
-            }
-            if (typeof duration !== 'number' || duration < 0) {
-              throw new TypeError('Duration argument must be a number greater than or equal to zero');
-            }
-            var startOpacity = parseFloat(element.style.opacity) || 0;
-            var endOpacity = targetOpacity;
-            var deltaOpacity = endOpacity - startOpacity;
-            var startTime = Date.now();
-            function step() {
-              var elapsed = Date.now() - startTime;
-              var opacity = startOpacity + (deltaOpacity * (elapsed / duration));
-              element.style.opacity = opacity;
-              if ((deltaOpacity > 0 && opacity >= endOpacity) || (deltaOpacity < 0 && opacity <= endOpacity)) {
-                element.style.opacity = endOpacity;
-                delete EB.UI.Animating[element.id];
-                return;
+        Fade: function (element, targetOpacity, duration) {
+            return new Promise((resolve, reject) => {
+              if (!(element instanceof HTMLElement)) {
+                reject(new TypeError('Element argument must be an HTML element'));
               }
+              if (typeof targetOpacity !== 'number' || targetOpacity < 0 || targetOpacity > 1) {
+                reject(new TypeError('Target opacity argument must be a number between 0 and 1 (inclusive)'));
+              }
+              if (typeof duration !== 'number' || duration < 0) {
+                reject(new TypeError('Duration argument must be a number greater than or equal to zero'));
+              }
+              var startOpacity = parseFloat(element.style.opacity) || 0;
+              var endOpacity = targetOpacity;
+              var deltaOpacity = endOpacity - startOpacity;
+              var startTime = Date.now();
+              function step() {
+                var elapsed = Date.now() - startTime;
+                var opacity = startOpacity + (deltaOpacity * (elapsed / duration));
+                element.style.opacity = opacity;
+                if ((deltaOpacity > 0 && opacity >= endOpacity) || (deltaOpacity < 0 && opacity <= endOpacity)) {
+                  element.style.opacity = endOpacity;
+                  delete EB.UI.Animating[element.id];
+                  resolve();
+                  return;
+                }
+                element.fadeAnimationId = window.requestAnimationFrame(step);
+              }
+              if (EB.UI.Animating[element.id]) {
+                window.cancelAnimationFrame(element.fadeAnimationId);
+                delete EB.UI.Animating[element.id];
+              }
+              EB.UI.Animating[element.id] = true;
               element.fadeAnimationId = window.requestAnimationFrame(step);
-            }
-            if (EB.UI.Animating[element.id]) {
-              window.cancelAnimationFrame(element.fadeAnimationId);
-              delete EB.UI.Animating[element.id];
-            }
-            EB.UI.Animating[element.id] = true;
-            element.fadeAnimationId = window.requestAnimationFrame(step);
+            });
           },
         Animating: {}
     },
@@ -89,18 +92,18 @@ window.addEventListener('load', function() { with (EB) {
         MenuTog.addEventListener('mouseout', function() {
             UI.Fade(MenuTog,0,100);
         });
-        MenuA.addEventListener('click', function(event) {
+        MenuA.addEventListener('click', async function(event) {
             event.preventDefault();
-            var Display = Menu.style.display
-            var targetOpacity = Display === 'none' ? 1 : 0
+            var Display = Menu.style.display;
+            Store.setVal('MenuVisible', Display === 'none' ? true : false);
+            var targetOpacity = (Display === 'none' ? 1 : 0);
             if (Display === 'none') {
-                Menu.style.Display = 'block';
+                Menu.style.display = 'block';
                 UI.Fade(Menu,targetOpacity,100);
             } else {
-                UI.Fade(Menu,targetOpacity,100);
-                Menu.style.Display = 'none';
+                await UI.Fade(Menu,targetOpacity,100);
+                Menu.style.display = 'none';
             }
-            Store.setVal('MenuVisible', Display === 'none' ? true : false);
         });
 
         edgeMenu.appendChild(MenuTog);
