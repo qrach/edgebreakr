@@ -73,23 +73,29 @@ var EB = { //dont mess with this shi
 
 window.addEventListener('load', function() { with (EB) {
 	var Menu = UI.C('div',document.body);
-	Menu.style.cssText = 'width: 400px; height: 600px; background-color: black; position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); text-align: center; border-radius: 10px; font-family: Calibri; z-index: 9999;';
+	Menu.style.cssText = 'width: 400px; height: 600px; background-color: black; position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); text-align: center; color: lightgrey; border-radius: 10px; font-family: Calibri; z-index: 9999;';
 	Menu.style.display = Store.getVal('MenuVisible') ? 'block' : 'none' || 'none';
 
 	var Title = UI.C('h1',Menu)
-	Title.style.cssText = 'color: lightgrey; padding-top: 20px; font-weight: 5px'
+	Title.style.cssText = 'letter-spacing: 1.5px; font-weight: 425; padding-top: 20px;';
 	Title.textContent = 'EdgeBreakr'
-	var Line = UI.C('div',Menu)
-	Line.style.cssText = 'background-color: white; height: 1px; width: 80%; margin-top: 15px; margin-left: auto; margin-right: auto;';
-	var MenuA;
+
+	var TopLine = UI.C('div',Menu)
+	TopLine.style.cssText = 'background-color: white; height: 1px; width: 75%; margin-top: 15px; margin-left: auto; margin-right: auto;';
+	var BottomLine = UI.C('div', Menu);
+	BottomLine.style.cssText = 'background-color: white; height: 1px; width: 80%; left: 50%; transform: translateX(-50%); position: fixed; bottom: 50px;';
+
+	var Credits = UI.C('p',Menu);
+	Credits.textContent = 'by 4eyes';
+	Credits.style.cssText = 'text-size: 15px; position: absolute; bottom: 0px; left: 50%; transform: translateX(-50%); margin-top: 25px;';
 	if (/^https?:\/\/[^\/]*\.core\.learn\.edgenuity\.com\/Player/i.test(window.location.href)) {
 		var edgeMenu = document.querySelector('ul[data-bind="visible: user().userMenu, if: $root.logoutURL"]');
 		var MenuTog = UI.C('li',edgeMenu);
 		MenuTog.style.cursor = 'pointer';
 		MenuTog.style.opacity = 0;
 
-		MenuA = UI.C('a',MenuTog);
-		MenuA.textContent = "EdgeBreakr";
+		var MenuA = UI.C('a',MenuTog);
+		MenuA.textContent = "Breakr Menu";
 		MenuA.style.opacity = 1;
 
 		MenuTog.addEventListener('mouseover', function() {
@@ -98,42 +104,57 @@ window.addEventListener('load', function() { with (EB) {
 		MenuTog.addEventListener('mouseout', function() {
 			UI.Fade(MenuTog,0,100);
 		});
+		MenuA.addEventListener('click', async function(event) {
+			event.preventDefault();
+			var Display = Menu.style.display;
+			Store.setVal('MenuVisible', Display === 'none' ? true : false);
+			var targetOpacity = (Display === 'none' ? 1 : 0);
+			if (Display === 'none') {
+				Menu.style.opacity = 0;
+				Menu.style.display = 'block';
+				UI.Fade(Menu,targetOpacity,250);
+			} else {
+				Menu.style.opacity = 1;
+				await UI.Fade(Menu,targetOpacity,250);
+				Menu.style.display = 'none';
+			}
+		});
 	} else if (/^(https?:\/\/)student\.edgenuity\.com\//.test(window.location.href)) {
 		function Load() {
 			var edgeMenu = document.querySelector('.dropdown-menu.dropdown-menu-right.show');
 			if (edgeMenu) {
 				document.removeEventListener("DOMSubtreeModified", Load);
-				MenuA = UI.C('a',edgeMenu);
+				var MenuA = UI.C('a',edgeMenu);
+				MenuA.textContent = "Breakr Menu";
 				MenuA.style.opacity = 0;
-				MenuA.style['line-height'] = .5;
+				MenuA.style['line-height'] = .1;
 				MenuA.setAttribute('class', 'dropdown-item');
-				MenuA.textContent = "EdgeBreakr";
 
 				MenuA.addEventListener('mouseover', function() {
 					UI.Fade(MenuA,1,100);
 					MenuA.style['line-height'] = 1.5;
 				});
-				MenuA.addEventListener('mouseout', function() {
-					UI.Fade(MenuA,0,100);
-					MenuA.style['line-height'] = .5;
+				MenuA.addEventListener('mouseout', async function() {
+				  UI.Fade(MenuA,0,100);
+					MenuA.style['line-height'] = .1;
+				});
+				MenuA.addEventListener('click', async function(event) {
+					event.preventDefault();
+					var Display = Menu.style.display;
+					Store.setVal('MenuVisible', Display === 'none' ? true : false);
+					var targetOpacity = (Display === 'none' ? 1 : 0);
+					if (Display === 'none') {
+						Menu.style.opacity = 0;
+						Menu.style.display = 'block';
+						UI.Fade(Menu,targetOpacity,250);
+					} else {
+						Menu.style.opacity = 1;
+						await UI.Fade(Menu,targetOpacity,250);
+						Menu.style.display = 'none';
+					}
 				});
 			}
 		};
 		document.addEventListener('DOMSubtreeModified', Load)
 	};
-	MenuA.addEventListener('click', async function(event) {
-		event.preventDefault();
-		var Display = Menu.style.display;
-		Store.setVal('MenuVisible', Display === 'none' ? true : false);
-		var targetOpacity = (Display === 'none' ? 1 : 0);
-		if (Display === 'none') {
-			Menu.style.opacity = 0;
-			Menu.style.display = 'block';
-			UI.Fade(Menu,targetOpacity,250);
-		} else {
-			Menu.style.opacity = 1;
-			await UI.Fade(Menu,targetOpacity,250);
-			Menu.style.display = 'none';
-		}
-	});
 }});
