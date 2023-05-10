@@ -1,67 +1,104 @@
 // ==UserScript==
-// @author	   qrach
-// @name		 EdgeBreakr
-// @version	  0.1.0
-// @description  Aims to automate most edgenuity tasks
+// @author		qrach
+// @name		EdgeBreakr
+// @version		0.1.0
+// @description	Aims to automate most edgenuity tasks
 // @namespace	https://github.com/qrach/EdgeBreakr/
-// @downloadURL  https://raw.githubusercontent.com/qrach/EdgeBreakr/main/EdgeBreakr.user.js
-// @updateURL   https://raw.githubusercontent.com/qrach/EdgeBreakr/main/EdgeBreakr.user.js
+// @downloadURL	https://raw.githubusercontent.com/qrach/EdgeBreakr/main/EdgeBreakr.user.js
+// @updateURL	https://raw.githubusercontent.com/qrach/EdgeBreakr/main/EdgeBreakr.user.js
 // @match		*://*.core.learn.edgenuity.com/*
 // @match		https://student.edgenuity.com/*
+// @run-at		document-start
 // @grant		GM_getValue
 // @grant		GM_setValue
 // ==/UserScript==
 
 var EB = { //dont mess with this shi
 	UI: {
-		C: function(type, parent, styles) {
+		CreateMenu: function() {
+			return new Promise((resolve, reject) => {
+				if (typeof UI.Menu === 'undefined') {
+					var Menu = UI.C('div');
+					Menu.style.cssText = 'width: 400px; height: 600px; background-color: black; position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); text-align: center; color: lightgrey; border-radius: 10px; font-family: Calibri; z-index: 9999;';
+					Menu.style.display = Store.getVal('MenuVisible') ? 'block' : 'none' || 'none';
+				
+					var Title = UI.C('h1',Menu)
+					Title.style.cssText = 'letter-spacing: 1.5px; font-weight: 425; padding-top: 20px;';
+					Title.textContent = 'EdgeBreakr'
+				
+					var TopLine = UI.C('div',Menu)
+					TopLine.style.cssText = 'background-color: white; height: 1px; width: 75%; margin-top: 15px; margin-left: auto; margin-right: auto;';
+
+					var BottomLine = UI.C('div', Menu);
+					BottomLine.style.cssText = 'background-color: white; height: 1px; width: 80%; left: 50%; transform: translateX(-50%); position: fixed; bottom: 50px;';
+				
+					var Credits = UI.C('p',Menu);
+					Credits.textContent = 'by 4eyes';
+					Credits.style.cssText = 'text-size: 15px; position: absolute; bottom: 0px; left: 50%; transform: translateX(-50%); margin-top: 25px;';
+
+					document.insertBefore(Menu, document.body)
+					UI.Menu = Menu;
+					return Menu
+				} else {
+					reject(new TypeError('Menu is already defined.'));
+				}
+			});
+		},
+		C: function(type, parent) {
 			if (typeof type !== 'string') {
-			  throw new TypeError('Type argument must be a string');
+				throw new TypeError('Type argument must be a string');
 			}
 			if (parent && !(parent instanceof HTMLElement)) {
-			  throw new TypeError('Parent argument must be an HTML element');
+				throw new TypeError('Parent argument must be an HTML element');
 			}
 			var e = document.createElement(type);
 			if (parent) {
-			  parent.appendChild(e);
+				parent.appendChild(e);
 			}
 			return e;
-		  },
-		Fade: function (element, targetOpacity, duration) {
+		},
+		A: function(element, property, unit, targetValue, duration) {
 			return new Promise((resolve, reject) => {
-			  if (!(element instanceof HTMLElement)) {
-				reject(new TypeError('Element argument must be an HTML element'));
-			  }
-			  if (typeof targetOpacity !== 'number' || targetOpacity < 0 || targetOpacity > 1) {
-				reject(new TypeError('Target opacity argument must be a number between 0 and 1 (inclusive)'));
-			  }
-			  if (typeof duration !== 'number' || duration < 0) {
-				reject(new TypeError('Duration argument must be a number greater than or equal to zero'));
-			  }
-			  var startOpacity = parseFloat(element.style.opacity) || 0;
-			  var endOpacity = targetOpacity;
-			  var deltaOpacity = endOpacity - startOpacity;
-			  var startTime = Date.now();
-			  function step() {
-				var elapsed = Date.now() - startTime;
-				var opacity = startOpacity + (deltaOpacity * (elapsed / duration));
-				element.style.opacity = opacity;
-				if ((deltaOpacity > 0 && opacity >= endOpacity) || (deltaOpacity < 0 && opacity <= endOpacity)) {
-				  element.style.opacity = endOpacity;
-				  delete EB.UI.Animating[element.id];
-				  resolve();
-				  return;
+				if (!(element instanceof HTMLElement)) {
+					reject(new TypeError('Element argument must be an HTML element'));
 				}
-				element.fadeAnimationId = window.requestAnimationFrame(step);
-			  }
-			  if (EB.UI.Animating[element.id]) {
-				window.cancelAnimationFrame(element.fadeAnimationId);
-				delete EB.UI.Animating[element.id];
-			  }
-			  EB.UI.Animating[element.id] = true;
-			  element.fadeAnimationId = window.requestAnimationFrame(step);
+				if (typeof property !== 'string') {
+					reject(new TypeError('Property argument must be a string'));
+				}
+				if (typeof unit !== 'string' && typeof unit !== null) {
+					reject(new TypeError('Unir argument must be a string or null'));
+				}
+				if (typeof targetValue !== 'number' || isNaN(targetValue)) {
+					reject(new TypeError('Target value argument must be a valid number'));
+				}
+				if (typeof duration !== 'number' || isNaN(duration) || duration < 0) {
+					reject(new TypeError('Duration argument must be a valid number greater than or equal to zero'));
+				}
+				const startValue = parseFloat(element.style[property]) || 0;
+				const endValue = targetValue;
+				const deltaValue = endValue - startValue;
+				const startTime = Date.now();
+				function step() {
+					const elapsed = Date.now() - startTime;
+					const value = startValue + (deltaValue * (elapsed / duration));
+					element.style[property] = value;
+					element.style[property] = value + unit;
+					if ((deltaValue > 0 && value >= endValue) || (deltaValue < 0 && value <= endValue)) {
+						element.style[property] = endValue + unit;
+						delete EB.UI.Animating[element.id];
+						resolve();
+						return;
+					}
+					element.animationId = window.requestAnimationFrame(step);
+				}
+				if (EB.UI.Animating[element.id]) {
+					window.cancelAnimationFrame(element.animationId);
+					delete EB.UI.Animating[element.id];
+				}
+				EB.UI.Animating[element.id] = true;
+				element.animationId = window.requestAnimationFrame(step);
 			});
-		  },
+		},
 		Animating: {}
 	},
 	Funcs: {},
@@ -71,90 +108,9 @@ var EB = { //dont mess with this shi
 	}
 };
 
-window.addEventListener('load', function() { with (EB) {
-	var Menu = UI.C('div',document.body);
-	Menu.style.cssText = 'width: 400px; height: 600px; background-color: black; position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); text-align: center; color: lightgrey; border-radius: 10px; font-family: Calibri; z-index: 9999;';
-	Menu.style.display = Store.getVal('MenuVisible') ? 'block' : 'none' || 'none';
-
-	var Title = UI.C('h1',Menu)
-	Title.style.cssText = 'letter-spacing: 1.5px; font-weight: 425; padding-top: 20px;';
-	Title.textContent = 'EdgeBreakr'
-
-	var TopLine = UI.C('div',Menu)
-	TopLine.style.cssText = 'background-color: white; height: 1px; width: 75%; margin-top: 15px; margin-left: auto; margin-right: auto;';
-	var BottomLine = UI.C('div', Menu);
-	BottomLine.style.cssText = 'background-color: white; height: 1px; width: 80%; left: 50%; transform: translateX(-50%); position: fixed; bottom: 50px;';
-
-	var Credits = UI.C('p',Menu);
-	Credits.textContent = 'by 4eyes';
-	Credits.style.cssText = 'text-size: 15px; position: absolute; bottom: 0px; left: 50%; transform: translateX(-50%); margin-top: 25px;';
+with(EB) {
 	if (/^https?:\/\/[^\/]*\.core\.learn\.edgenuity\.com\/Player/i.test(window.location.href)) {
-		var edgeMenu = document.querySelector('ul[data-bind="visible: user().userMenu, if: $root.logoutURL"]');
-		var MenuTog = UI.C('li',edgeMenu);
-		MenuTog.style.cursor = 'pointer';
-		MenuTog.style.opacity = 0;
-
-		var MenuA = UI.C('a',MenuTog);
-		MenuA.textContent = "Breakr Menu";
-		MenuA.style.opacity = 1;
-
-		MenuTog.addEventListener('mouseover', function() {
-			UI.Fade(MenuTog,1,100);
-		});
-		MenuTog.addEventListener('mouseout', function() {
-			UI.Fade(MenuTog,0,100);
-		});
-		MenuA.addEventListener('click', async function(event) {
-			event.preventDefault();
-			var Display = Menu.style.display;
-			Store.setVal('MenuVisible', Display === 'none' ? true : false);
-			var targetOpacity = (Display === 'none' ? 1 : 0);
-			if (Display === 'none') {
-				Menu.style.opacity = 0;
-				Menu.style.display = 'block';
-				UI.Fade(Menu,targetOpacity,250);
-			} else {
-				Menu.style.opacity = 1;
-				await UI.Fade(Menu,targetOpacity,250);
-				Menu.style.display = 'none';
-			}
-		});
 	} else if (/^(https?:\/\/)student\.edgenuity\.com\//.test(window.location.href)) {
-		function Load() {
-			var edgeMenu = document.querySelector('.dropdown-menu.dropdown-menu-right.show');
-			if (edgeMenu) {
-				document.removeEventListener("DOMSubtreeModified", Load);
-				var MenuA = UI.C('a',edgeMenu);
-				MenuA.textContent = "Breakr Menu";
-				MenuA.style.opacity = 0;
-				MenuA.style['line-height'] = .1;
-				MenuA.setAttribute('class', 'dropdown-item');
-
-				MenuA.addEventListener('mouseover', function() {
-					UI.Fade(MenuA,1,100);
-					MenuA.style['line-height'] = 1.5;
-				});
-				MenuA.addEventListener('mouseout', async function() {
-				  UI.Fade(MenuA,0,100);
-					MenuA.style['line-height'] = .1;
-				});
-				MenuA.addEventListener('click', async function(event) {
-					event.preventDefault();
-					var Display = Menu.style.display;
-					Store.setVal('MenuVisible', Display === 'none' ? true : false);
-					var targetOpacity = (Display === 'none' ? 1 : 0);
-					if (Display === 'none') {
-						Menu.style.opacity = 0;
-						Menu.style.display = 'block';
-						UI.Fade(Menu,targetOpacity,250);
-					} else {
-						Menu.style.opacity = 1;
-						await UI.Fade(Menu,targetOpacity,250);
-						Menu.style.display = 'none';
-					}
-				});
-			}
-		};
-		document.addEventListener('DOMSubtreeModified', Load)
 	};
-}});
+	await UI.CreateMenu();
+};
