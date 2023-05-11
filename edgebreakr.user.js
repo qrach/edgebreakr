@@ -1,7 +1,7 @@
 // ==UserScript==
 // @author		qrach
 // @name		EdgeBreakr
-// @version		0.1.0
+// @version		0.0.1
 // @description	Aims to automate most edgenuity tasks
 // @namespace	https://github.com/qrach/EdgeBreakr/
 // @downloadURL	https://raw.githubusercontent.com/qrach/EdgeBreakr/main/EdgeBreakr.user.js
@@ -22,7 +22,7 @@ var EB = { //dont mess with this shi
 		Stylesheet: 'https://raw.githubusercontent.com/qrach/edgebreakr/main/ebr.css'
 	},
 	UI: {
-		C: function(type, parent, classname) {
+		C: function(type, parents) {
 			if (typeof type !== 'string') {
 				throw new TypeError('Type argument must be a string');
 			}
