@@ -24,21 +24,18 @@ var EB = { //dont mess with this shi
 	UI: {
 		C: function(type, parent) {
 			if (typeof type !== 'string') {
-			  throw new TypeError('Type argument must be a string');
+				throw new TypeError('Type argument must be a string');
 			}
 			if (!(parent instanceof HTMLElement) && !(parent instanceof ShadowRoot)) {
-			  throw new TypeError('Parent argument must be an HTML element or ShadowRoot');
+				throw new TypeError('Parent argument must be an HTML element or ShadowRoot');
 			}
-			
 			var element;
-			if (parent instanceof ShadowRoot) {
-			  element = parent.createElement(type);
-			} else {
-			  element = document.createElement(type);
-			  parent.appendChild(element);
+			if (parent) {
+				element = document.createElement(type);
+				parent.appendChild(element);
+				return element;
 			}
-			
-			return element;
+			return;
 		  },
 		A: function(element, property, unit, targetValue, duration) { with (EB) {
 			return new Promise((resolve, reject) => {
@@ -104,7 +101,7 @@ EB.Main = async function() { with(EB) {
 		var RootDiv = UI.C('div',document.body)
 		var Container = RootDiv.attachShadow({ mode: 'open' });
 
-		var link = UI.C('link',);
+		var link = UI.C('link',Container);
 		link.rel = 'stylesheet';
 		link.href = Config.Stylesheet;
 
