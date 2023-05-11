@@ -24,19 +24,22 @@ var EB = { //dont mess with this shi
 	UI: {
 		C: function(type, parent) {
 			if (typeof type !== 'string') {
-				throw new TypeError('Type argument must be a string');
+			  throw new TypeError('Type argument must be a string');
 			}
-			if (parent !== undefined && !(parent instanceof HTMLElement) && !(parent instanceof ShadowRoot)) {
-				throw new TypeError('Parent argument must be an HTML element');
+			if (!(parent instanceof HTMLElement) && !(parent instanceof ShadowRoot)) {
+			  throw new TypeError('Parent argument must be an HTML element or ShadowRoot');
 			}
-			var e = document.createElement(type);
-			if (parent.shadowRoot) {
-				e = parent.createElement(type);
-			  } else if (parent) {
-				e = document.createElement(type);
-			  }
-			return e;
-		},
+			
+			var element;
+			if (parent instanceof ShadowRoot) {
+			  element = parent.createElement(type);
+			} else {
+			  element = document.createElement(type);
+			  parent.appendChild(element);
+			}
+			
+			return element;
+		  },
 		A: function(element, property, unit, targetValue, duration) { with (EB) {
 			return new Promise((resolve, reject) => {
 				if (!(element instanceof HTMLElement)) {
