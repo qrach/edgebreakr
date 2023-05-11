@@ -31,7 +31,7 @@ var EB = { //dont mess with this shi
 			}
 			var e = document.createElement(type);
 			if (parent.shadowRoot) {
-				e = parent.shadowRoot.createElement(type);
+				e = parent.createElement(type);
 			  } else if (parent) {
 				e = document.createElement(type);
 			  }
@@ -101,7 +101,7 @@ EB.Main = async function() { with(EB) {
 		var RootDiv = UI.C('div',document.body)
 		var Container = RootDiv.attachShadow({ mode: 'open' });
 
-		var link = document.createElement('link');
+		var link = UI.C('link',);
 		link.rel = 'stylesheet';
 		link.href = Config.Stylesheet;
 
