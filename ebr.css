@@ -48,6 +48,7 @@ ul li + li::after {
 	background-color: black;
 	position: fixed;
 	border-radius: 10px;
+	color: lightgrey;
 }
 
 #Menu {
