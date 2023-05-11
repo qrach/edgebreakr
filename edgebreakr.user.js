@@ -26,13 +26,15 @@ var EB = { //dont mess with this shi
 			if (typeof type !== 'string') {
 				throw new TypeError('Type argument must be a string');
 			}
-			if (parent && !(parent instanceof HTMLElement)) {
+			if (parent && !(parent instanceof HTMLElement || parent.shadowRoot instanceof HTMLElement)) {
 				throw new TypeError('Parent argument must be an HTML element');
 			}
 			var e = document.createElement(type);
-			if (parent) {
-				parent.appendChild(e);
-			}
+			if (parent.shadowRoot) {
+				e = parent.shadowRoot.createElement(type);
+			  } else if (parent) {
+				e = document.createElement(type);
+			  }
 			return e;
 		},
 		A: function(element, property, unit, targetValue, duration) { with (EB) {
