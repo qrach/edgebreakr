@@ -26,7 +26,7 @@ var EB = { //dont mess with this shi
 			if (typeof type !== 'string') {
 				throw new TypeError('Type argument must be a string');
 			}
-			if if (parent !== undefined && !(parent instanceof HTMLElement) && !(parent instanceof ShadowRoot)) {
+			if (parent !== undefined && !(parent instanceof HTMLElement) && !(parent instanceof ShadowRoot)) {
 				throw new TypeError('Parent argument must be an HTML element');
 			}
 			var e = document.createElement(type);
