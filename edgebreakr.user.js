@@ -9,6 +9,7 @@
 // @match		*://*.core.learn.edgenuity.com/*
 // @match		https://student.edgenuity.com/*
 // @run-at		document-start
+// @grant		GM_xmlhttpRequest
 // @grant		GM_getValue
 // @grant		GM_setValue
 // ==/UserScript==
@@ -101,9 +102,18 @@ EB.Main = async function() { with(EB) {
 		var RootDiv = UI.C('div',document.body)
 		var Container = RootDiv.attachShadow({ mode: 'open' });
 
-		var link = UI.C('link',Container);
-		link.rel = 'stylesheet';
-		link.href = Config.Stylesheet;
+		GM_xmlhttpRequest({
+			method: "GET",
+			url: "https://raw.githubusercontent.com/qrach/edgebreakr/main/ebr.css",
+			headers: {
+				"Content-Type": "text/css"
+			},
+			onload: function(response) {
+				// Insert the CSS file into the page as a <style> element
+				var style = UI.C('style',Container);
+				style.textContent = response.responseText;
+			}
+		});
 
 		var Settings = UI.C('div',Container);
 		Settings.id = 'Settings'
