@@ -57,7 +57,7 @@ ul li + li::after {
 	bottom: 15px;
 	left: 15px;
 	z-index: 9998;
-	transform: translate(25%, -50%)
+	transform: translate(25%, -50%);
 }
 
 #Settings {
