@@ -22,7 +22,7 @@ var EB = { //dont mess with this shi
 		Stylesheet: 'https://raw.githubusercontent.com/qrach/edgebreakr/main/ebr.css'
 	},
 	UI: {
-		C: function(type, parents) {
+		C: function(type, parent) {
 			if (typeof type !== 'string') {
 				throw new TypeError('Type argument must be a string');
 			}
@@ -98,9 +98,11 @@ EB.Main = async function() { with(EB) {
 	document.addEventListener('DOMContentLoaded', async function() {
 		var RootDiv = UI.C('div',document.body)
 		var Container = hostElement.attachShadow({ mode: 'open' });
+
 		var link = document.createElement('link');
 		link.rel = 'stylesheet';
 		link.href = Config.Stylesheet;
+
 		var Settings = UI.C('div',Container);
 		Settings.id = 'Settings'
 		Settings.classList.add('Menu')
