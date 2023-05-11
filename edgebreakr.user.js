@@ -97,7 +97,7 @@ EB.Main = async function() { with(EB) {
 	};
 	document.addEventListener('DOMContentLoaded', async function() {
 		var RootDiv = UI.C('div',document.body)
-		var Container = hostElement.attachShadow({ mode: 'open' });
+		var Container = RootDiv.attachShadow({ mode: 'open' });
 
 		var link = document.createElement('link');
 		link.rel = 'stylesheet';
