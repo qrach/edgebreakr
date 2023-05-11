@@ -13,38 +13,16 @@
 // @grant		GM_setValue
 // ==/UserScript==
 
+function sleep(ms) {
+	return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 var EB = { //dont mess with this shi
+	Config: {
+		Stylesheet: 'https://raw.githubusercontent.com/qrach/edgebreakr/main/ebr.css'
+	},
 	UI: {
-		CreateMenu: function() {
-			return new Promise((resolve, reject) => {
-				if (typeof UI.Menu === 'undefined') {
-					var Menu = UI.C('div');
-					Menu.style.cssText = 'width: 400px; height: 600px; background-color: black; position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); text-align: center; color: lightgrey; border-radius: 10px; font-family: Calibri; z-index: 9999;';
-					Menu.style.display = Store.getVal('MenuVisible') ? 'block' : 'none' || 'none';
-				
-					var Title = UI.C('h1',Menu)
-					Title.style.cssText = 'letter-spacing: 1.5px; font-weight: 425; padding-top: 20px;';
-					Title.textContent = 'EdgeBreakr'
-				
-					var TopLine = UI.C('div',Menu)
-					TopLine.style.cssText = 'background-color: white; height: 1px; width: 75%; margin-top: 15px; margin-left: auto; margin-right: auto;';
-
-					var BottomLine = UI.C('div', Menu);
-					BottomLine.style.cssText = 'background-color: white; height: 1px; width: 80%; left: 50%; transform: translateX(-50%); position: fixed; bottom: 50px;';
-				
-					var Credits = UI.C('p',Menu);
-					Credits.textContent = 'by 4eyes';
-					Credits.style.cssText = 'text-size: 15px; position: absolute; bottom: 0px; left: 50%; transform: translateX(-50%); margin-top: 25px;';
-
-					document.insertBefore(Menu, document.body)
-					UI.Menu = Menu;
-					return Menu
-				} else {
-					reject(new TypeError('Menu is already defined.'));
-				}
-			});
-		},
-		C: function(type, parent) {
+		C: function(type, parent, classname) {
 			if (typeof type !== 'string') {
 				throw new TypeError('Type argument must be a string');
 			}
@@ -57,7 +35,7 @@ var EB = { //dont mess with this shi
 			}
 			return e;
 		},
-		A: function(element, property, unit, targetValue, duration) {
+		A: function(element, property, unit, targetValue, duration) { with (EB) {
 			return new Promise((resolve, reject) => {
 				if (!(element instanceof HTMLElement)) {
 					reject(new TypeError('Element argument must be an HTML element'));
@@ -65,8 +43,8 @@ var EB = { //dont mess with this shi
 				if (typeof property !== 'string') {
 					reject(new TypeError('Property argument must be a string'));
 				}
-				if (typeof unit !== 'string' && typeof unit !== null) {
-					reject(new TypeError('Unir argument must be a string or null'));
+				if (typeof unit !== 'string' && unit !== null) {
+					reject(new TypeError('Unit argument must be a string or null'));
 				}
 				if (typeof targetValue !== 'number' || isNaN(targetValue)) {
 					reject(new TypeError('Target value argument must be a valid number'));
@@ -79,26 +57,31 @@ var EB = { //dont mess with this shi
 				const deltaValue = endValue - startValue;
 				const startTime = Date.now();
 				function step() {
+					if (element.style[property] === targetValue + unit) {
+						resolve();
+					};
 					const elapsed = Date.now() - startTime;
 					const value = startValue + (deltaValue * (elapsed / duration));
-					element.style[property] = value;
 					element.style[property] = value + unit;
 					if ((deltaValue > 0 && value >= endValue) || (deltaValue < 0 && value <= endValue)) {
 						element.style[property] = endValue + unit;
-						delete EB.UI.Animating[element.id];
+						var anims = UI.Animating[element.id];
+						UI.Animating[element.id] = [...anims.slice(0,anims.indexOf(property)), ...anims.slice(anims.indexOf(property)+1,)];
 						resolve();
-						return;
+						if (UI.Animating[element.id] === []) {delete UI.Animating[element.id]};
 					}
 					element.animationId = window.requestAnimationFrame(step);
 				}
-				if (EB.UI.Animating[element.id]) {
-					window.cancelAnimationFrame(element.animationId);
-					delete EB.UI.Animating[element.id];
+				UI.Animating[element.id] = UI.Animating[element.id] || [];
+				anims = UI.Animating[element.id]
+				if (anims.includes(property)) {
+					window.cancelAnimationFrame(anims[property]);
+					UI.Animating[element.id] = [...anims.slice(0,anims.indexOf(property)), ...anims.slice(anims.indexOf(property)+1,)];
 				}
-				EB.UI.Animating[element.id] = true;
+				UI.Animating[element.id][property] = window.requestAnimationFrame(step);
 				element.animationId = window.requestAnimationFrame(step);
 			});
-		},
+		}},
 		Animating: {}
 	},
 	Funcs: {},
@@ -108,9 +91,109 @@ var EB = { //dont mess with this shi
 	}
 };
 
-with(EB) {
+EB.Main = async function() { with(EB) {
 	if (/^https?:\/\/[^\/]*\.core\.learn\.edgenuity\.com\/Player/i.test(window.location.href)) {
 	} else if (/^(https?:\/\/)student\.edgenuity\.com\//.test(window.location.href)) {
 	};
-	await UI.CreateMenu();
-};
+	document.addEventListener('DOMContentLoaded', async function() {
+		var RootDiv = UI.C('div',document.body)
+		var Container = hostElement.attachShadow({ mode: 'open' });
+		var link = document.createElement('link');
+		link.rel = 'stylesheet';
+		link.href = Config.Stylesheet;
+		var Settings = UI.C('div',Container);
+		Settings.id = 'Settings'
+		Settings.classList.add('Menu')
+		Settings.style.display = Store.getVal('SettingsVisible') ? 'block' : 'none' || 'none';
+		Settings.style.opacity = (Settings.style.display === 'none' ? 0 : 1);
+	
+		var Title = UI.C('h1',Settings)
+		Title.textContent = 'EdgeBreakr'
+	
+		var TopLine = UI.C('hr',Settings)
+		TopLine.style.cssText = 'width: 75%;';
+		var BottomLine = UI.C('hr', Settings);
+		BottomLine.style.cssText = 'width: 80%; bottom: 50px;';
+	
+		var Credits = UI.C('p',Settings);
+		Credits.id = 'Credits'
+		Credits.textContent = 'by 4eyes';
+		UI.Settings = Settings;
+
+
+		var Menu = UI.C('ul',Container)
+		Menu.id = 'Menu'
+		Menu.classList.add('Menu')
+
+		var Killswitch = UI.C('li',Menu)
+		Killswitch.textContent = 'Kill'
+
+		var UITog = UI.C('li',Menu)
+		UITog.textContent = 'Settings'
+
+		UITog.addEventListener('click', async function(event) {
+			event.preventDefault();
+			var Display = Settings.style.display;
+			Store.setVal('SettingsVisible', Display === 'none' ? true : false);
+			var sOpacity = (Display === 'none' ? 1 : 0);
+			var tOpacity = (Display === 'none' ? .5 : 1);
+			if (Display === 'none') {
+				Settings.style.display = 'block';
+				UI.A(Settings,'opacity',null,sOpacity,250);
+			} else {
+				await UI.A(Settings,'opacity',null,sOpacity,250);
+				Settings.style.display = 'none';
+			}
+		});
+
+		var MenuActive = false;
+		var mTog = UI.C('img',Container);
+		mTog.id = 'LogoButton';
+		mTog.src = "https://google.com";
+		mTog.addEventListener('mouseover', function() {
+			UI.A(mTog, 'width', 'px', 55, 100);
+			UI.A(mTog, 'height', 'px', 55, 100);
+			UI.A(mTog, 'left', 'px', 12.5, 100);
+			UI.A(mTog, 'bottom', 'px', 12.5, 100);
+			if (!MenuActive) {
+				UI.A(mTog,'opacity',null,1,100);
+			};
+		});
+
+		mTog.addEventListener('mouseout', function() {
+			UI.A(mTog, 'width', 'px', 50, 100);
+			UI.A(mTog, 'height', 'px', 50, 100);
+			UI.A(mTog, 'left', 'px', 15, 100);
+			UI.A(mTog, 'bottom', 'px', 15, 100);
+			if (!MenuActive) {
+				UI.A(mTog,'opacity',null,.5,100);
+			};
+		});
+
+		mTog.addEventListener('click', async function(event) {
+			event.preventDefault();
+			if (MenuActive) {
+				MenuActive = false;
+				for (var i = 0; i < Menu.children.length; i++) {
+					UI.A(Menu.children[i],'opacity',null,0,100);
+				}
+				await sleep(250);
+				UI.A(Menu,'opacity',null,0,100);
+				await UI.A(Menu,'width','px',0,100);
+				Menu.style.display = 'none';
+			} else {
+				MenuActive = true;
+				Menu.style.display = 'flex';
+				UI.A(Menu,'opacity',null,1,100);
+				await UI.A(Menu,'width','px',100,100);
+				for (var i = 0; i < Menu.children.length; i++) {
+					UI.A(Menu.children[i],'opacity',null,1,250);
+				}
+			}
+		});
+	});
+}};
+
+if (window === window.top) {
+	EB.Main();
+}
