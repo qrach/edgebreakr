@@ -123,7 +123,7 @@ EB.Main = async function() { with(EB) {
 		Settings.style.opacity = (Settings.style.display === 'none' ? 0 : 1);
 	
 		var Title = UI.C('h1',Settings)
-		Title.textContent = 'EdgeBreakr'
+		Title.textContent = 'Settings'
 	
 		var TopLine = UI.C('hr',Settings)
 		TopLine.style.cssText = 'width: 75%;';
@@ -145,6 +145,10 @@ EB.Main = async function() { with(EB) {
 		var Killswitch = UI.C('li',Menu)
 		Killswitch.textContent = 'Kill'
 
+		var Hide = UI.C('li',Menu)
+		Hide.textContent = 'Hide'
+
+		TogHidden = false;
 		var UITog = UI.C('li',Menu)
 		UITog.textContent = 'Settings'
 
@@ -168,45 +172,51 @@ EB.Main = async function() { with(EB) {
 		mTog.id = 'LogoButton';
 		mTog.src = Config.Logo;
 		mTog.addEventListener('mouseover', function() {
-			UI.A(mTog, 'width', 'px', 55, 100);
-			UI.A(mTog, 'height', 'px', 55, 100);
-			UI.A(mTog, 'left', 'px', 12.5, 100);
-			UI.A(mTog, 'bottom', 'px', 12.5, 100);
-			if (!MenuActive) {
-				UI.A(mTog,'opacity',null,1,100);
-			};
+			if (!TogHidden) {
+				UI.A(mTog, 'width', 'px', 55, 100);
+				UI.A(mTog, 'height', 'px', 55, 100);
+				UI.A(mTog, 'left', 'px', 12.5, 100);
+				UI.A(mTog, 'bottom', 'px', 12.5, 100);
+				if (!MenuActive) {
+					UI.A(mTog,'opacity',null,1,100);
+				};
+			}
 		});
 
 		mTog.addEventListener('mouseout', function() {
-			UI.A(mTog, 'width', 'px', 50, 100);
-			UI.A(mTog, 'height', 'px', 50, 100);
-			UI.A(mTog, 'left', 'px', 15, 100);
-			UI.A(mTog, 'bottom', 'px', 15, 100);
-			if (!MenuActive) {
-				UI.A(mTog,'opacity',null,.5,100);
+			if (!TogHidden) {
+				UI.A(mTog, 'width', 'px', 50, 100);
+				UI.A(mTog, 'height', 'px', 50, 100);
+				UI.A(mTog, 'left', 'px', 15, 100);
+				UI.A(mTog, 'bottom', 'px', 15, 100);
+				if (!MenuActive) {
+					UI.A(mTog,'opacity',null,.5,100);
+				};
 			};
 		});
 
 		mTog.addEventListener('click', async function(event) {
-			event.preventDefault();
-			if (MenuActive) {
-				MenuActive = false;
-				for (var i = 0; i < Menu.children.length; i++) {
-					UI.A(Menu.children[i],'opacity',null,0,250);
+			if (!TogHidden) {
+				event.preventDefault();
+				if (MenuActive) {
+					MenuActive = false;
+					for (var i = 0; i < Menu.children.length; i++) {
+						UI.A(Menu.children[i],'opacity',null,0,250);
+					}
+					await sleep(250);
+					UI.A(Menu,'opacity',null,0,100);
+					await UI.A(Menu,'width','px',0,100);
+					Menu.style.display = 'none';
+				} else {
+					MenuActive = true;
+					Menu.style.display = 'flex';
+					UI.A(Menu,'opacity',null,1,100);
+					await UI.A(Menu,'width','px',120,100);
+					for (var i = 0; i < Menu.children.length; i++) {
+						UI.A(Menu.children[i],'opacity',null,1,250);
+					}
 				}
-				await sleep(250);
-				UI.A(Menu,'opacity',null,0,100);
-				await UI.A(Menu,'width','px',0,100);
-				Menu.style.display = 'none';
-			} else {
-				MenuActive = true;
-				Menu.style.display = 'flex';
-				UI.A(Menu,'opacity',null,1,100);
-				await UI.A(Menu,'width','px',120,100);
-				for (var i = 0; i < Menu.children.length; i++) {
-					UI.A(Menu.children[i],'opacity',null,1,250);
-				}
-			}
+			};
 		});
 	});
 }};
