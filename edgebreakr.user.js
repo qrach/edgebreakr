@@ -192,7 +192,7 @@ EB.Main = async function() { with(EB) {
 			if (MenuActive) {
 				MenuActive = false;
 				for (var i = 0; i < Menu.children.length; i++) {
-					UI.A(Menu.children[i],'opacity',null,0,100);
+					UI.A(Menu.children[i],'opacity',null,0,250);
 				}
 				await sleep(250);
 				UI.A(Menu,'opacity',null,0,100);
@@ -202,7 +202,7 @@ EB.Main = async function() { with(EB) {
 				MenuActive = true;
 				Menu.style.display = 'flex';
 				UI.A(Menu,'opacity',null,1,100);
-				await UI.A(Menu,'width','px',100,100);
+				await UI.A(Menu,'width','px',120,100);
 				for (var i = 0; i < Menu.children.length; i++) {
 					UI.A(Menu.children[i],'opacity',null,1,250);
 				}
