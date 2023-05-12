@@ -52,6 +52,7 @@ ul li + li::after {
 }
 
 #Menu {
+	font-size: 10px;
 	width: 100px;
 	flex-direction: column-reverse;
 	bottom: 15px;
