@@ -105,7 +105,7 @@ EB.Main = async function() { with(EB) {
 
 		GM_xmlhttpRequest({
 			method: "GET",
-			url: "https://raw.githubusercontent.com/qrach/edgebreakr/main/ebr.css",
+			url: "https://raw.githubusercontent.com/qrach/edgebreakr/main/assets/ebr.css",
 			headers: {
 				"Content-Type": "text/css"
 			},
