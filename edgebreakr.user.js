@@ -20,6 +20,7 @@ function sleep(ms) {
 
 var EB = { //dont mess with this shi
 	Config: {
+		Logo: 'https://raw.githubusercontent.com/qrach/edgebreakr/main/assets/ebrlogo.png',
 		Stylesheet: 'https://raw.githubusercontent.com/qrach/edgebreakr/main/ebr.css'
 	},
 	UI: {
@@ -163,7 +164,7 @@ EB.Main = async function() { with(EB) {
 		var MenuActive = false;
 		var mTog = UI.C('img',Container);
 		mTog.id = 'LogoButton';
-		mTog.src = "https://google.com";
+		mTog.src = Config.Logo;
 		mTog.addEventListener('mouseover', function() {
 			UI.A(mTog, 'width', 'px', 55, 100);
 			UI.A(mTog, 'height', 'px', 55, 100);
