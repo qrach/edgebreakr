@@ -139,6 +139,8 @@ EB.Main = async function() { with(EB) {
 		var Menu = UI.C('ul',Container)
 		Menu.id = 'Menu'
 		Menu.classList.add('Menu')
+		Menu.style.opacity = .5;
+		Menu.style.display = 'none'
 
 		var Killswitch = UI.C('li',Menu)
 		Killswitch.textContent = 'Kill'
