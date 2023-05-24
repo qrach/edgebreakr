@@ -1,4 +1,8 @@
 var User = {
+	mousePos: {
+		X: 0,
+		Y: 0
+	},
 	tminkInput: 0.7,
 	tmaxkInput: 0.06
 }
@@ -7,8 +11,10 @@ async function sleep(ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function hkwait(min,max) {
-	var nmax = User.tmaxInput/4;
+async function hkwait(min, max) {
+	min = min*1000;
+	max = max*1000;
+	var nmax = max/4;
 	var nmin = -nmax;
 	var osc = min + Math.abs(Math.sin(Date.now())) * (max - min); // divide by 1000 to ensure output is within range
 	var noi = nmin + Math.abs(Math.random()) * (nmax - nmin); // random noise
@@ -17,13 +23,13 @@ async function hkwait(min,max) {
 	return res;
 }
 
-User.mousemove = async function(startX, startY, destX, destY, G0 = 9, W0 = 3, M0 = 15, D0 = 12) { // windmouse lol
+User.mouseMove = async function(startX, startY, destX, destY, G0 = 9, W0 = 3, M0 = 15, D0 = 12) { // windmouse lol
 	// Get the current mouse position.
 	var currentX = window.innerWidth / 2;
 	var currentY = window.innerHeight / 2;
 	
 	// Create a new requestAnimationFrame callback.
-	function animate() {
+	function animate(e) {
 		// Get the current mouse position.
 		var mouseX = e.clientX;
 		var mouseY = e.clientY;
@@ -79,10 +85,110 @@ User.mousemove = async function(startX, startY, destX, destY, G0 = 9, W0 = 3, M0
 	
 		// Request the next animation frame.
 		requestAnimationFrame(animate);
+		} else {
+			return;
 		}
 	}
 	// Request the first animation frame.
-	requestAnimationFrame(animate);
+	var promise = new Promise(function(resolve, reject) {
+		requestAnimationFrame(animate);
+		animate.then(function() {
+			resolve();
+		});
+	});
+	return promise
 }
 
-User.mousemove(0,0,100,100)
+User.emouseMove = function(e) { with (User) {
+	var promise = new Promise(async function(resolve, reject) {
+		var Pos = e.getBoundingClientRect();
+		await mouseMove(mousePos.X,mousePos.Y,e.X,e.Y);
+		resolve();
+	});
+	return promise;
+}}
+
+User.lclick = function() { with (User) {
+	var promise = new Promise(async function(resolve, reject) {
+		var event = new MouseEvent("mousedown", {
+			view: window,
+			bubbles: true,
+			cancelable: false,
+			clientX: mousePos.X,
+			clientY: mousePos.Y,
+			button: 1,
+		});
+		await hkwait(tminkInput,tmaxkInput)
+		var event = new MouseEvent("mouseup", {
+			view: window,
+			bubbles: true,
+			cancelable: false,
+			clientX: mousePos.X,
+			clientY: mousePos.Y,
+			button: 1,
+		});
+		resolve();
+	});
+	return promise
+}}
+
+User.lclick = function() { with (User) {
+	var promise = new Promise(async function(resolve, reject) {
+		window.dispatchEvent(new MouseEvent("mousedown", {
+			view: window,
+			bubbles: true,
+			cancelable: false,
+			clientX: mousePos.X,
+			clientY: mousePos.Y,
+			button: 2,
+		}));
+		await User.hkwait(tminkInput,tmaxkInput)
+		window.dispatchEvent(new MouseEvent("mouseup", {
+			view: window,
+			bubbles: true,
+			cancelable: false,
+			clientX: mousePos.X,
+			clientY: mousePos.Y,
+			button: 2,
+		}));
+		resolve();
+	});
+	return promise
+}}
+
+User.keydown = function(key,e) { with (User) {
+	var promise = new Promise(async function(resolve, reject) {
+		e.focus();
+		window.dispatchEvent(new KeyboardEvent('keydown', { key: key, target: e }));
+		window.dispatchEvent(new KeyboardEvent('beforeinput', { data: key, target: e }));
+		window.dispatchEvent(new KeyboardEvent('keypress', { key: key, target: e }));
+		if ('value' in e) {
+			var sstart = e.selectionStart
+			var send = e.selectionEnd
+			if (selectionStart !== 0 || selectionEnd !== e.value.length) {
+				e.value = e.value.slice(0, selectionStart) + key + e.value.slice(selectionEnd);
+			} else {
+				e.value += key;
+			}
+		}
+		await hkwait(tminkInput,tmaxkInput/15)
+		window.dispatchEvent(new Event('input', { bubbles: true }));
+		window.dispatchEvent(new Event('change', { bubbles: true }));
+		window.dispatchEvent(new KeyboardEvent('keyup', { key: key, target: e }));
+		resolve();
+	});
+	return promise
+}}
+
+
+User.type = function(text,e) { with (User) {
+	var promise = new Promise(async function(resolve, reject) {
+		for (const char of text) {
+			await keydown(char,e);
+		}
+		resolve();
+	});
+	return promise
+}}
+
+setTimeout(function(){User.type("hello there",document.activeElement); console.log('ok')},5000)
