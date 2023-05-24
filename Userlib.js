@@ -73,7 +73,9 @@ User.mouseMove = async function(startX, startY, destX, destY, G0 = 9, W0 = 3, M0
 		// Update the mouse position.
 		mouseX += v_x;
 		mouseY += v_y;
-		console.log(mouseX,mouseY)
+		mousePos.X = mouseX;
+		mousePos.Y = mouseY;
+
 		// Dispatch a mousemove event.
 		window.dispatchEvent(new MouseEvent("mousemove", {
 			view: window,
@@ -190,5 +192,3 @@ User.type = function(text,e) { with (User) {
 	});
 	return promise
 }}
-
-setTimeout(function(){User.type("hello there",document.activeElement); console.log('ok')},5000)
